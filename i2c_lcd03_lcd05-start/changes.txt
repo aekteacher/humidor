@@ -1,0 +1,35 @@
+
+Changes to file lcd03.h
+
+
+#define LCD_SETCONTRAST 0x1E
+#define LCD_SETBRIGHTNESS 0x1F
+
+  void setContrast(uint8_t);
+  void setBrightness(uint8_t);
+
+
+
+
+
+
+
+-----------------------
+
+Changes to file lcd03.cpp
+
+void LCD03::setContrast(uint8_t ts) {
+  Wire.beginTransmission(_i2c_address);
+  Wire.write(REG_COMMAND);
+  Wire.write(LCD_SETBRIGHTNESS);
+  Wire.write(ts);
+  Wire.endTransmission();
+}
+
+void LCD03::setBrightness(uint8_t ts) {
+  Wire.beginTransmission(_i2c_address);
+  Wire.write(REG_COMMAND);
+  Wire.write(LCD_SETBRIGHTNESS);
+  Wire.write(ts);
+  Wire.endTransmission();
+}
