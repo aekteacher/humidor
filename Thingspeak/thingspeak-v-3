@@ -16,7 +16,7 @@ String startString;
 
 //Thingspeak parameters http://blogspot.tenettech.com/?p=3110
 String thingspeak_update_API    = "http://api.thingspeak.com/update";  // https://gist.github.com/netmaniac/10930106
-String thingspeak_write_API_key = "?key=CRJ2VKNW9QYNKTFJ";//Insert Your Write API key here
+String thingspeak_write_API_key = "?key=*** SECRET API KEY ***";//Insert Your Write API key here
 String thingspeakfieldstart      = "&field";
 String thingspeakfieldend     = "=";
 unsigned int currentThingsPeak = 0;     // för uppdateringsklockan
