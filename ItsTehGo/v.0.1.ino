@@ -18,6 +18,8 @@ MENUMENUMENUMENUMENU
 #include <LCD03.h>          // LCD
 
 #include <DHT.h>            // DHT sensor
+
+#include <Time.h>           //   Tiden
 /*
  ____  _____ ____  _   _
 |    \| ___ |  _ \| | | |
