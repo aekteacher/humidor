@@ -22,11 +22,15 @@ MENUMENUMENUMENUMENU
 #include <MenuBackend.h>    //MenuBackend library - copyright by Alexander Brevig
 #include <Wire.h>
 
+#include <LCD03.h>
+
+#include <DHT.h>
+
 // Menu Buttons
-const int buttonPinLeft = 5;      // pin for the Up button
-const int buttonPinRight = 2;    // pin for the Down button
-const int buttonPinEsc = 3;     // pin for the Esc button - up
-const int buttonPinEnter = 4;   // pin for the Enter button - down
+const int buttonPinLeft = A0;      // pin for the Up button
+const int buttonPinRight = A3;    // pin for the Down button
+const int buttonPinEsc = A1;     // pin for the Esc button - up
+const int buttonPinEnter = A2;   // pin for the Enter button - down
 
 int lastButtonPushed = 0;
 
@@ -57,103 +61,38 @@ MenuItem menuItem4SubItem1 = MenuItem("Item4SubItem1");		// Edit one warning
 MenuItem menuItem4SubItem2 = MenuItem("Item4SubItem2");		// Edit short warning
 MenuItem menuItem4SubItem3 = MenuItem("Item4SubItem3");		// Edit long warning
 
-/*           _
-            | |
- _ _ _ _____| |__
-| | | | ___ |  _ \
-| | | | ____| |_) )
- \___/|_____)____/
-*/
-// http://www.homautomation.org/2013/10/01/playing-with-arduino-yun/
-
-#include <Bridge.h>;
-#include <YunServer.h>;
-#include <YunClient.h>;
-// All request on http://***ard.ip***/arduino/ will be transfered here
-YunServer server;
-String startString;
-
-/*     _     _                                    _
-   _  | |   (_)                                  | |
- _| |_| |__  _ ____   ____  ___ ____  _____ _____| |  _
-(_   _)  _ \| |  _ \ / _  |/___)  _ \| ___ (____ | |_/ )
-  | |_| | | | | | | ( (_| |___ | |_| | ____/ ___ |  _ (
-   \__)_| |_|_|_| |_|\___ (___/|  __/|_____)_____|_| \_)
-                    (_____|    |_|
-https://thingspeak.com/channels/35264
-*/
-#include "HttpClient.h"
-
-//Thingspeak parameters http://blogspot.tenettech.com/?p=3110
-String thingspeak_update_API    = "http://api.thingspeak.com/update";  // https://gist.github.com/netmaniac/10930106
-String thingspeak_write_API_key = "?key=*** SUPER SECRET KEY***";//Insert Your Write API key here
-String thingspeakfieldstart      = "&field";
-String thingspeakfieldend     = "=";
-unsigned int currentThingsPeak = 0;     // för uppdateringsklockan
-unsigned long startThingsPeak;
-// För att beräkna medelvärde
-long avgShort[] = {0, 0, 0};
-long tShort = 0;
-long hShort = 0;
-long hcShort = 0;
-int TPcount = 0;
-int TPcountLong = 0;
-long tLong = 0;
-long hLong = 0;
-long hcLong = 0;
-
 /*
- _     ___________ 
+ _     ___________
 | |   /  __ \  _  \
 | |   | /  \/ | | |
 | |   | |   | | | |
-| |___| \__/\ |/ / 
-\_____/\____/___/  
+| |___| \__/\ |/ /
+\_____/\____/___/
 */
-#include <LCD03.h>
+
 LCD03 lcd;  //this library is included in the Arduino IDE // Create new LCD03 instance
 
 // ----- Tiden
 #include <Time.h>
 
 /*
-______ _   _ _____             ___        _ _   _           _             
-|  _  \ | | |_   _|           / _ \      | (_) (_)         (_)            
-| | | | |_| | | |    ______  / /_\ \_   _| | __ _ ___ _ __  _ _ __   __ _ 
+______ _   _ _____             ___        _ _   _           _
+|  _  \ | | |_   _|           / _ \      | (_) (_)         (_)
+| | | | |_| | | |    ______  / /_\ \_   _| | __ _ ___ _ __  _ _ __   __ _
 | | | |  _  | | |   |______| |  _  \ \ / / |/ _` / __| '_ \| | '_ \ / _` |
 | |/ /| | | | | |            | | | |\ V /| | (_| \__ \ | | | | | | | (_| |
 |___/ \_| |_/ \_/            \_| |_/ \_/ |_|\__,_|___/_| |_|_|_| |_|\__, |
                                                                      __/ |                                                                   |___/                                                                           (_____|
 */
-#include "DHT.h"
+
 #define DHTPIN 8         // what pin we're connected to 
 #define DHTTYPE DHT22    // DHT 22  (AM2302) 
 DHT dht(DHTPIN, DHTTYPE);
 
 /*
- ______            _     _
-(_____ \          | |   | |            _     _
- _____) )   _  ___| |__ | |__  _   _ _| |_ _| |_ ___  ____
-|  ____/ | | |/___)  _ \|  _ \| | | (_   _|_   _) _ \|  _ \
-| |    | |_| |___ | | | | |_) ) |_| | | |_  | || |_| | | | |
-|_|    |____/(___/|_| |_|____/|____/   \__)  \__)___/|_| |_|
-*/
-// Set pins.
-#define BUTTON_PIN A5            // The number of the push-button pin.
-#define LCD_LIGHT_PIN A4         // The number of the pin where anode of the display backlight is.
-#define LCD_LIGHT_ON_TIME 10000  // How long (in milliseconds) should lcd light stay on?
-
-unsigned int currentLcdLightOnTime = 0;
-unsigned long lcdLightOn_StartMillis;    // For calculating the lcd light on time.
-boolean isLcdLightOn;
-
-// For checking push-button state.
-int buttonState = 0;
-
-/*
- _   _       _                 
-| | | |     | |                
-| | | | __ _| |_   _  ___  ___ 
+ _   _       _
+| | | |     | |
+| | | | __ _| |_   _  ___  ___
 | | | |/ _` | | | | |/ _ \/ __|
 \ \_/ / (_| | | |_| |  __/\__ \
  \___/ \__,_|_|\__,_|\___||___/
@@ -174,30 +113,8 @@ float f;      // Fahrenheit
 float hi;     // Heatindex, fahrenheit, skrivs om till celsius raden under.
 float hc;
 
-byte grad[8] = {        // gradersymbol
-  B00110,
-  B01001,
-  B00110,
-  B00000,
-  B00000,
-  B00000,
-  B00000,
-};
-
-byte pil[8] = {      // pil nedåt från vänster
-  B00000,
-  B11100,
-  B00100,
-  B00100,
-  B11111,
-  B01110,
-  B00100,
-};
-
 void setup() {
   // ----- LCD-uppdatering
-  lcd.createChar(0, grad);      // skapa symbolerna
-  lcd.createChar(1, pil);
   lcd.begin(20, 4);
 
   // Clear the LCD
@@ -205,32 +122,9 @@ void setup() {
   lcd.clear();
   lcd.print("Welcome To Humidor");
 
-  // ----- WEB // ----- ThingsPeak
-  Bridge.begin();
-  delay(2000);
-
-  // Listen for incoming connection only from localhost - no one from the external network could connect
-  server.listenOnLocalhost();
-  server.begin();
-
-  // get the time that this sketch started:
-  Process startTime;
-  startTime.runShellCommand("date");
-  while (startTime.available()) {
-    char c = startTime.read();
-    startString += c;
-  }
 
   // ----- DHT-avläsning
   dht.begin();
-
-  // ----- PushButton för backlight
-  pinMode(BUTTON_PIN, INPUT);
-  // Set the lcd display backlight anode pin as an output.
-  pinMode(LCD_LIGHT_PIN, OUTPUT);
-  // Set the lcd display backlight anode pin to low - lcd light off.
-  digitalWrite(LCD_LIGHT_PIN, LOW);
-  isLcdLightOn = false;
 
   // ----- Menu
   pinMode(buttonPinLeft, INPUT);
@@ -260,25 +154,6 @@ void loop() {
   int m = minute();
   int s = second();
 
-  // ----- PushButton för backlight
-  buttonState = digitalRead(BUTTON_PIN);
-
-  if (buttonState == HIGH) {  // Button pressed.
-    lcdLightOn_StartMillis = millis();
-    currentLcdLightOnTime = 0;
-    isLcdLightOn = true;
-    digitalWrite(LCD_LIGHT_PIN, HIGH);
-  }
-  else {
-    if (isLcdLightOn) {
-      currentLcdLightOnTime = millis() - lcdLightOn_StartMillis;
-      if (currentLcdLightOnTime > LCD_LIGHT_ON_TIME) {
-        isLcdLightOn = false;
-        digitalWrite(LCD_LIGHT_PIN, LOW);
-        lcd.clear();
-      }
-    }
-  }
 
   // ----- DHT-avläsning
   h = dht.readHumidity();        // måste nog korrigeras med +4
@@ -291,103 +166,11 @@ void loop() {
 
   delay(250);   // tid för att läsa av, typ.
 
-  if (isLcdLightOn) {  // Uppdaterar LCD'n bara om skärmen är på.
-    // ----- LCD-uppdatering
-    readButtons();  //I splitted button reading and navigation in two procedures because
-    navigateMenus();  //in some situations I want to use the button for other purpose (eg. to change some settings)
-  }
-
-  // ----- WEB
-  // Get clients coming from server
-  YunClient client = server.accept();
-
-  // There is a new client?
-  if (client) {
-    // read the command
-    String command = client.readString();
-    command.trim();        //kill whitespace
-    //   Serial.println(command);
-    // is "temperature" command?
-    if (command == "Humidor") {
-      // get the time from the server:
-      Process time;
-      time.runShellCommand("date");
-      String timeString = "";
-      while (time.available()) {
-        char c = time.read();
-        if (c != '\n') {
-          timeString += c;
-        }
-      }
-      client.print("Datum och tid: "); client.print(timeString); client.println("");
-      client.print("Temperatur:    "); client.print(t); client.print("\x00B0"); client.println("C");
-      client.print("Luftfuktighet: "); client.print(h); client.println(" %");
-      client.print("V"); client.print("\x00E4"); client.print("rme:         "); client.print(hc); client.print("\x00B0"); client.println("C");
-      client.print("Uptime:        "); client.print(d); client.print(" d, "); client.print(H); client.print(" h, "); client.print(m); client.print(" min, "); client.print(s); client.print(" s.");
-    }
-    // Close connection and free resources.
-    client.stop();
-  }
-
-  // ----- ThingsPeak
-  if (currentThingsPeak > 60000) {    // detta borde kunna lösas med array el. motsv. <---><---><---->
-    tShort = tShort + t * 100;        // t, h, hc från tidigare läsning, se DHT
-    hShort = hShort + h * 100;
-    hcShort = hcShort + hc * 100;
-    TPcount++;
-    if (TPcount > 4) {         // summerar fem mätningar
-      TPcountLong++;          // addera ett till longmätningen
-      TPcount = 0;            // nollställer mätaren
-      int tT = tShort / 5;    // beräknar medelvärdet
-      int hT = hShort / 5;
-      tLong = tLong + tT;
-      hLong = hLong + hT;
-      hcLong = hcLong + hcShort / 5;
-      if (TPcountLong > 6) {   // summerar sju pentas
-        TPcountLong = 0;
-        int stT = tLong / 7;
-        int shT = hLong / 7;
-        int shcT = hcLong / 7;
-        postToThinspeak5(tT, 1, hT, 2, shcT, 3, stT, 4, shT, 5);
-        tLong = 0;              // nollställer räknarna
-        hLong = 0;
-        hcLong = 0;
-      }
-      else {
-        postToThinspeak2(tT, 1, hT, 2);
-      }
-      tShort = 0;            // nollställer räknarna
-      hShort = 0;
-    }
-    currentThingsPeak = 0;
-    startThingsPeak = millis();
-  }
-  else {
-    currentThingsPeak = millis() - startThingsPeak;
-  }
+  readButtons();  //I splitted button reading and navigation in two procedures because
+  navigateMenus();  //in some situations I want to use the button for other purpose (eg. to change some settings)
 }
 
-/*     _     _                                    _
-   _  | |   (_)                                  | |
- _| |_| |__  _ ____   ____  ___ ____  _____ _____| |  _
-(_   _)  _ \| |  _ \ / _  |/___)  _ \| ___ (____ | |_/ )
-  | |_| | | | | | | ( (_| |___ | |_| | ____/ ___ |  _ (
-   \__)_| |_|_|_| |_|\___ (___/|  __/|_____)_____|_| \_)
-                    (_____|    |_|
-*/
-void postToThinspeak2(int T, int F1, int H, int F2) {
-  HttpClient client;
-  String request_string =  thingspeak_update_API + thingspeak_write_API_key + thingspeakfieldstart + F1 + thingspeakfieldend  + T + thingspeakfieldstart + F2 + thingspeakfieldend  + H;
-  // Make a HTTP request:
-  client.get(request_string);
-}
 
-void postToThinspeak5(int T, int F1, int H, int F2, int HC, int F3, int sT, int F4, int sH, int F5) {
-  HttpClient client;
-  String request_string =  thingspeak_update_API + thingspeak_write_API_key + thingspeakfieldstart + F1 + thingspeakfieldend  + T + thingspeakfieldstart + F2 + thingspeakfieldend  + H + thingspeakfieldstart + F3 + thingspeakfieldend  + HC + thingspeakfieldstart + F4 + thingspeakfieldend  + sT + thingspeakfieldstart + F5 + thingspeakfieldend  + sH;
-  // Make a HTTP request:
-  client.get(request_string);
-}
 
 /*
  ____  _____ ____  _   _
