@@ -11,15 +11,15 @@ MENUMENUMENUMENUMENU
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 MENUMENUMENUMENUMENU
 */
-// Libraries
+//  Libraries
 #include <MenuBackend.h>    //MenuBackend library - copyright by Alexander Brevig
 #include <Wire.h>
 
-#include <LCD03.h>          // LCD
+#include <LCD03.h>        // LCD
 
-#include <DHT.h>            // DHT sensor
+#include <DHT.h>          // DHT sensor
 
-#include <Time.h>           //   Tiden
+#include <Time.h>        // Tiden
 /*
  ____  _____ ____  _   _
 |    \| ___ |  _ \| | | |
