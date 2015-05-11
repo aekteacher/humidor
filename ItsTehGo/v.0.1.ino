@@ -11,21 +11,19 @@ MENUMENUMENUMENUMENU
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 MENUMENUMENUMENUMENU
 */
+// Libraries
+#include <MenuBackend.h>    //MenuBackend library - copyright by Alexander Brevig
+#include <Wire.h>
 
+#include <LCD03.h>          // LCD
+
+#include <DHT.h>            // DHT sensor
 /*
  ____  _____ ____  _   _
 |    \| ___ |  _ \| | | |
 | | | | ____| | | | |_| |
 |_|_|_|_____)_| |_|____/
 */
-// Menu Libraries
-#include <MenuBackend.h>    //MenuBackend library - copyright by Alexander Brevig
-#include <Wire.h>
-
-#include <LCD03.h>
-
-#include <DHT.h>
-
 // Menu Buttons
 const int buttonPinLeft = A0;      // pin for the Up button
 const int buttonPinRight = A3;    // pin for the Down button
@@ -71,9 +69,6 @@ MenuItem menuItem4SubItem3 = MenuItem("Item4SubItem3");		// Edit long warning
 */
 
 LCD03 lcd;  //this library is included in the Arduino IDE // Create new LCD03 instance
-
-// ----- Tiden
-#include <Time.h>
 
 /*
 ______ _   _ _____             ___        _ _   _           _
@@ -122,7 +117,6 @@ void setup() {
   lcd.clear();
   lcd.print("Welcome To Humidor");
 
-
   // ----- DHT-avläsning
   dht.begin();
 
@@ -154,7 +148,6 @@ void loop() {
   int m = minute();
   int s = second();
 
-
   // ----- DHT-avläsning
   h = dht.readHumidity();        // måste nog korrigeras med +4
   // Celsius
@@ -169,8 +162,6 @@ void loop() {
   readButtons();  //I splitted button reading and navigation in two procedures because
   navigateMenus();  //in some situations I want to use the button for other purpose (eg. to change some settings)
 }
-
-
 
 /*
  ____  _____ ____  _   _
